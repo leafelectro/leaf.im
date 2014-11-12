@@ -17,7 +17,7 @@ redirs.forEach(function (redir) {
             fs.rmdirSync(url);
         } else {
             fs.mkdirSync(url);
-            fs.writeFileSync(url + '/index.html', '---\nlayout: default\n---\n', 'utf8');
+            fs.writeFileSync(url + '/index.html', '---\nlayout: default\n---\n<a href="' + redir.dest + '">' + redir.dest + '</a>', 'utf8');
         }
     });
 });

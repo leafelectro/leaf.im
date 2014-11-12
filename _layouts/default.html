@@ -1,8 +1,28 @@
 <!doctype html>
 <html>
 <head>
+    <style>
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            color: #333;
+            font-size: 14px;
+            padding: 10px;
+        }
+
+        a, a:hover, a:visited {
+            color: #1773db;
+            text-decoration: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline-block;
+            vertical-align: bottom;
+            width: 300px;
+        }
+    </style>
 </head>
 <body>
+You are being redirected to {{ content }}
 <script>
 
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -22,21 +42,11 @@ var Leaf = {};
 
     {% include redirs.js %}
 
-    Leaf.redirect = function (path) {
-        var loc = '', i, j, ilen, jlen;
+    Leaf.getLoc = function (path, redirs) {
+        var loc = '';
 
-        // Trim leafelectro/github.io/leaf.im/ URL
-        if (path.indexOf('/leaf.im') > -1) {
-            path = path.substring(8);
-        }
-
-        // Remove trailing whitespace added by GitHub page
-        if (path.charAt(path.length - 1) === '/') {
-            path = path.substr(0, path.length - 1);
-        }
-
-        for (i = 0, ilen = redirs.length; i < ilen; i++) {
-            for (j = 0, jlen = redirs[i].urls.length; j < jlen; j++) {
+        for (var i = 0, ilen = redirs.length; i < ilen; i++) {
+            for (var j = 0, jlen = redirs[i].urls.length; j < jlen; j++) {
                 if ('/' + redirs[i].urls[j] === path) {
                     loc = redirs[i].dest;
                 }
@@ -48,6 +58,26 @@ var Leaf = {};
             loc = 'http://leafelectro.com';
         }
 
+        return loc;
+    };
+
+    Leaf.cleanPath = function(path) {
+        // Trim leafelectro/github.io/leaf.im/ URL
+        if (path.indexOf('/leaf.im') > -1) {
+            path = path.substring(8);
+        }
+
+        // Remove trailing whitespace added by GitHub page
+        if (path !== '/') {
+            if (path.charAt(path.length - 1) === '/') {
+                path = path.substr(0, path.length - 1);
+            }
+        }
+
+        return path;
+    };
+
+    Leaf.redirect = function (path, loc) {
         ga('send', {
             'hitType': 'pageview',
             'page': path,
@@ -58,9 +88,10 @@ var Leaf = {};
                     'eventCategory': loc,
                     'eventAction': path,
                     'eventLabel': document.referrer,
+                    'eventValue': true,
                     'hitCallback': function () {
                         console.log('GA event call finished');
-                        console.log('Redirecting from ' + path + ' to ' + loc + ' (from GitHub Page).');
+                        console.log('Redirecting from ' + path + ' to ' + loc + '.');
                         window.location = loc;
                     }
                 });
@@ -70,8 +101,10 @@ var Leaf = {};
         console.log('GA pageview call initiated (page=' + path + ').');
     };
 
-    var path = window.location.pathname;
-    Leaf.redirect(path);
+    var path = Leaf.cleanPath(window.location.pathname);
+    var loc = Leaf.getLoc(path, redirs);
+
+    Leaf.redirect(path, loc);
 
 }(window, Leaf));
 
