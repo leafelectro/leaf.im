@@ -1,20 +1,42 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
+<head>
+</head>
+<body>
+<script>
+/*jslint vars: true, plusplus: true, devel:true, browser: true */
 
-  {% include head.html %}
+var Leaf = {};
 
-  <body>
+(function (window, Leaf) {
+    'use strict';
 
-    {% include header.html %}
+    {% include redirs.js %}
 
-    <div class="page-content">
-      <div class="wrapper">
-        {{ content }}
-      </div>
-    </div>
+    Leaf.redirect = function (path) {
+        var loc = '', i, j, ilen, jlen;
 
-    {% include footer.html %}
+        for (i = 0, ilen = redirs.length; i < ilen; i++) {
+            for (j = 0, jlen = redirs[i].urls.length; j < jlen; j++) {
+                if ('/' + redirs[i].urls[j] + '/' === path) {
+                    loc = redirs[i].dest;
+                }
+            }
+        }
 
-  </body>
+        if (loc === '' || loc === '/') {
+            loc = 'http://leafelectro.com';
+        }
 
+        console.log('Redirecting from ' + path + ' to ' + loc + ' (from GitHub Page).');
+        //window.location = loc;
+    };
+
+    var path = window.location.pathname;
+    Leaf.redirect(path);
+
+}(window, Leaf));
+
+</script>
+</body>
 </html>
