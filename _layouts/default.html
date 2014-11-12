@@ -16,6 +16,10 @@ var Leaf = {};
     Leaf.redirect = function (path) {
         var loc = '', i, j, ilen, jlen;
 
+        if (path.indexOf('/leaf.im') > -1) {
+            path = path.substring(8);
+        }
+
         for (i = 0, ilen = redirs.length; i < ilen; i++) {
             for (j = 0, jlen = redirs[i].urls.length; j < jlen; j++) {
                 if ('/' + redirs[i].urls[j] + '/' === path) {
