@@ -4,6 +4,15 @@
 </head>
 <body>
 <script>
+
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-43602258-2', 'auto');
+
+
 /*jslint vars: true, plusplus: true, devel:true, browser: true */
 
 var Leaf = {};
@@ -16,24 +25,49 @@ var Leaf = {};
     Leaf.redirect = function (path) {
         var loc = '', i, j, ilen, jlen;
 
+        // Trim leafelectro/github.io/leaf.im/ URL
         if (path.indexOf('/leaf.im') > -1) {
             path = path.substring(8);
         }
 
+        // Remove trailing whitespace added by GitHub page
+        if (path.charAt(path.length - 1) === '/') {
+            path = path.substr(0, path.length - 1);
+        }
+
         for (i = 0, ilen = redirs.length; i < ilen; i++) {
             for (j = 0, jlen = redirs[i].urls.length; j < jlen; j++) {
-                if ('/' + redirs[i].urls[j] + '/' === path) {
+                if ('/' + redirs[i].urls[j] === path) {
                     loc = redirs[i].dest;
                 }
             }
         }
 
+        // leaf.im default redirection
         if (loc === '' || loc === '/') {
             loc = 'http://leafelectro.com';
         }
 
-        console.log('Redirecting from ' + path + ' to ' + loc + ' (from GitHub Page).');
-        window.location = loc;
+        ga('send', {
+            'hitType': 'pageview',
+            'page': path,
+            'hitCallback': function () {
+                console.log('GA pageview call finished');
+                ga('send', {
+                    'hitType': 'event',
+                    'eventCategory': loc,
+                    'eventAction': path,
+                    'eventLabel': document.referrer,
+                    'hitCallback': function () {
+                        console.log('GA event call finished');
+                        console.log('Redirecting from ' + path + ' to ' + loc + ' (from GitHub Page).');
+                        window.location = loc;
+                    }
+                });
+                console.log('GA event call initiated (category=' + loc + ', action=' + path + ', label[referrer]=' + document.referrer + ')');
+            }
+        });
+        console.log('GA pageview call initiated (page=' + path + ').');
     };
 
     var path = window.location.pathname;
