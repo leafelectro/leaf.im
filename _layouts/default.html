@@ -23,6 +23,9 @@
 </head>
 <body>
 You are being redirected to {{ content }}
+<form name="back-button-protection" style="display: none">
+    <input type="hidden" id="redirect" name="redirect" value="true" />
+</form>
 <script>
 
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -101,10 +104,16 @@ var Leaf = {};
         console.log('GA pageview call initiated (page=' + path + ').');
     };
 
+    var redirectInput = document.getElementById('redirect');
+    var doRedirect = redirectInput.value;
+    redirectInput.value = 'false';
+
     var path = Leaf.cleanPath(window.location.pathname);
     var loc = Leaf.getLoc(path, redirs);
 
-    Leaf.redirect(path, loc);
+    if (doRedirect == 'true') {
+        Leaf.redirect(path, loc);
+    }
 
 }(window, Leaf));
 
